@@ -1,4 +1,4 @@
-import First from "./first-page";
+import First from "./firstpage/page";
 
 export default function Home() {
   return (

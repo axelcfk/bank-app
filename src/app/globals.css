@@ -31,3 +31,7 @@ a {
   z-index: 1000;
   backdrop-filter: blur(10px);
 }
+
+.icon-link:hover path {
+  stroke: #c1c1c1;
+}

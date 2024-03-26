@@ -6,6 +6,8 @@ import { useState, useEffect } from "react";
 export default function UserPage() {
   const [deposit, setDeposit] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
+  const [withdraw, setWithdraw] = useState(false);
+  const [withdrawAmount, setWithdrawAmount] = useState("");
   const [balance, setBalance] = useState(0);
   console.log(depositAmount);
   console.log(deposit);
@@ -39,14 +41,14 @@ export default function UserPage() {
   async function handleDeposit(e) {
     e.preventDefault();
 
-    // Fetch userId och token från localStorage
+    // Hämta userId och token från localStorage
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
     const amount = parseFloat(depositAmount); // Gör till siffra
 
     try {
       const response = await fetch(
-        "http://localhost:8080/me/accounts/transactions",
+        "http://localhost:8080/me/accounts/deposit",
         {
           method: "POST",
           headers: {
@@ -69,6 +71,39 @@ export default function UserPage() {
     setDeposit(false);
   }
 
+  async function handleWithdraw(e) {
+    e.preventDefault();
+
+    // Hämta userId och token från localStorage
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+    const amount = parseFloat(withdrawAmount); // Gör till siffra
+
+    try {
+      const response = await fetch(
+        "http://localhost:8080/me/accounts/withdraw",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId, token, amount }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to withdraw");
+      }
+
+      // Hämta det uppdaterade saldot efter deposit
+      fetchBalance();
+    } catch (error) {
+      console.error("Withdraw error:", error.message);
+    }
+    setWithdraw(false);
+  }
+
   useEffect(() => {
     fetchBalance(); // Hämta saldo när sidan visas
     const token = localStorage.getItem("token"); // Hämta  token från localStorage
@@ -76,6 +111,56 @@ export default function UserPage() {
       setToken(token); // Sätt state för token
     }
   }, []);
+
+  async function handlePayment(amount) {
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await fetch("http://localhost:8080/me/accounts/pay", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          // Assuming you need to authenticate the request
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId, amount, token }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Payment failed");
+      }
+
+      // Assuming the server responds with the updated balance
+      const updatedData = await response.json();
+      setBalance(updatedData.newBalance);
+
+      alert(`Payment of ${amount} was successful.`);
+    } catch (error) {
+      console.error("Payment error:", error.message);
+      alert(error.message);
+    }
+  }
+
+  useEffect(() => {
+    fetchBalance(); // Hämta saldo när sidan visas
+    const token = localStorage.getItem("token"); // Hämta  token från localStorage
+    if (token) {
+      setToken(token); // Sätt state för token
+    }
+  }, []);
+
+  // function handlePayment(amount) {
+  //   if (balance >= amount) {
+  //     setBalance((prevBalance) => prevBalance - amount);
+
+  //     alert("Payment successful!");
+  //   } else {
+  //     alert("Insufficient funds!");
+  //   }
+  // }
 
   return (
     <div>
@@ -97,6 +182,7 @@ export default function UserPage() {
                 height="24px"
                 viewBox="0 0 24 24"
                 fill="none"
+                className="icon-link"
               >
                 <path
                   d="M14 20H6C4.89543 20 4 19.1046 4 18L4 6C4 4.89543 4.89543 4 6 4H14M10 12H21M21 12L18 15M21 12L18 9"
@@ -168,64 +254,88 @@ export default function UserPage() {
           </div>
         </div>
         <div className="flex justify-evenly py-5">
-          {/* <p className="bg-slate-100 h-8 rounded-full w-20 flex justify-center items-center">
-            Withdraw
-          </p> */}
           <button
             onClick={() => (setDeposit(true), setDepositAmount(""))}
             className="border-none my-8 hover:cursor-pointer hover:bg-slate-200 bg-slate-100 h-8 w-24 rounded-full flex justify-center items-center"
           >
             Deposit
           </button>
-          {/* <p className="bg-slate-100 h-8 w-20 flex justify-center items-center rounded-full">
-            Invest
-          </p> */}
+          <button
+            onClick={() => (setWithdraw(true), setWithdrawAmount(""))}
+            className="border-none my-8 hover:cursor-pointer hover:bg-slate-200 bg-slate-100 h-8 w-24 rounded-full flex justify-center items-center"
+          >
+            Withdraw
+          </button>
         </div>
       </div>
       <div className="bg-slate-100 px-8">
         <div className="flex justify-between items-center ">
           <h3 className="text-xl">Quickpay </h3>{" "}
           {/* Det här kommer att betala allt på en gång */}
-          <p className="text-3xl hover:cursor-pointer hover:font-semibold text-blue-800">
-            +
-          </p>
+          <div className="flex justify-center items-center hover:cursor-pointer hover:font-semibold">
+            <p className="pr-5 ">Pay all</p>
+            <p className="text-4xl hover:cursor-pointer hover:font-semibold text-blue-800">
+              +
+            </p>
+          </div>
         </div>
         <div>
-          <div className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400">
+          <div
+            onClick={() => handlePayment(549)}
+            className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
+          >
             <div className="flex flex-col">
               <p className="-mb-1">Mobile Phone</p>
               <p>549</p>
             </div>
-            <p className="text-xl">&rarr;</p>{" "}
+            <div className="flex justify-center items-center">
+              <p className="pr-5">Pay now</p>
+              <p className="text-xl">&rarr;</p>
+            </div>{" "}
             {/* Det här kommer att betala enskilda utgifter */}
           </div>
-          <div className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400">
+          <div
+            onClick={() => handlePayment(499)}
+            className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
+          >
             <div className="flex flex-col">
               <p className="-mb-1">Internet</p>
               <p>499</p>
             </div>
-            <p className="text-xl">&rarr;</p>
+            <div className="flex justify-center items-center">
+              <p className="pr-5">Pay now</p>
+              <p className="text-xl">&rarr;</p>
+            </div>
           </div>
           <div className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400">
             <div className="flex flex-col">
               <p className="-mb-1">Electricity</p>
               <p>300</p>
             </div>
-            <p className="text-xl">&rarr;</p>
+            <div className="flex justify-center items-center">
+              <p className="pr-5">Pay now</p>
+              <p className="text-xl">&rarr;</p>
+            </div>
           </div>
           <div className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400">
             <div className="flex flex-col">
               <p className="-mb-1">Gym</p>
               <p>629</p>
             </div>
-            <p className="text-xl">&rarr;</p>
+            <div className="flex justify-center items-center">
+              <p className="pr-5">Pay now</p>
+              <p className="text-xl">&rarr;</p>
+            </div>{" "}
           </div>
           <div className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400">
             <div className="flex flex-col">
               <p className="-mb-1">Netflix</p>
               <p>99</p>
             </div>
-            <p className="text-xl">&rarr;</p>
+            <div className="flex justify-center items-center">
+              <p className="pr-5">Pay now</p>
+              <p className="text-xl">&rarr;</p>
+            </div>{" "}
           </div>
         </div>
       </div>
@@ -267,6 +377,85 @@ export default function UserPage() {
           </div>
         </div>
       )}
+      {withdraw && (
+        <div className="sign-in-overlay flex flex-col">
+          <div className=" fixed top-28 right-8 ">
+            {" "}
+            <button
+              className="bg-slate-200 h-8 w-8 flex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer"
+              onClick={() => setWithdraw(false)}
+            >
+              ✕
+            </button>
+          </div>
+          <div className="px-8">
+            <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-start  text-xl font-semibold  hover:cursor-pointer">
+              <h2 className="text-center w-full">Enter Deposit Amount</h2>
+              {/* <p className="text-sm">Your Session Token: {token}</p> */}
+              <form onSubmit={handleWithdraw} className=" w-full">
+                <input
+                  autoFocus
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                  type="number"
+                  placeholder="Enter Withdraw Amount"
+                  value={withdrawAmount}
+                  required
+                  className="h-10 my-8 w-full rounded-xl border-none "
+                />
+
+                <button
+                  type="submit"
+                  onClick={handleWithdraw}
+                  className="p-2 hover:cursor-pointer border-none h-10 w-full rounded-full text-base  text-slate-200 bg-blue-950 hover:bg-blue-900"
+                >
+                  Withdraw
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+// {
+//   withdraw && (
+//     <div className="sign-in-overlay flex flex-col">
+//       <div className=" fixed top-28 right-8 ">
+//         {" "}
+//         <button
+//           className="bg-slate-200 h-8 w-8 flex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer"
+//           onClick={() => setWithdraw(false)}
+//         >
+//           ✕
+//         </button>
+//       </div>
+//       <div className="px-8">
+//         <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-start  text-xl font-semibold  hover:cursor-pointer">
+//           <h2 className="text-center w-full">Enter Deposit Amount</h2>
+//           {/* <p className="text-sm">Your Session Token: {token}</p> */}
+//           <form onSubmit={handleWithdraw} className=" w-full">
+//             <input
+//               autoFocus
+//               onChange={(e) => setWithdrawAmount(e.target.value)}
+//               type="number"
+//               placeholder="Enter Withdraw Amount"
+//               value={depositAmount}
+//               required
+//               className="h-10 my-8 w-full rounded-xl border-none "
+//             />
+
+//             <button
+//               type="submit"
+//               onClick={handleWithdraw}
+//               className="p-2 hover:cursor-pointer border-none h-10 w-full rounded-full text-base  text-slate-200 bg-blue-950 hover:bg-blue-900"
+//             >
+//               Withdraw
+//             </button>
+//           </form>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
