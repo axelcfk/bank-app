@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function SignUp() {
+  const [errorMessage, setErrorMessage] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -22,7 +23,7 @@ export default function SignUp() {
         body: JSON.stringify({ username, password }),
       });
       if (!response.ok) {
-        throw new Error("Failed to create account");
+        throw new Error("This user already exists");
       }
 
       const data = await response.json();
@@ -33,7 +34,7 @@ export default function SignUp() {
       //   router.push("/userpage"); // Ensure this route exists and is correctly configured in your Next.js app
     } catch (error) {
       console.error(error);
-      alert(error.message);
+      setErrorMessage(error.message);
     }
   }
 
@@ -53,10 +54,17 @@ export default function SignUp() {
       </div>
       {successMessage === "" ? (
         <div className="px-8">
-          <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-xl font-semibold  ">
+          <div className="bg-slate-200 h-full rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-lg font-semibold  ">
             <h2 className="leading-snug text-center">
               One step closer to better banking
             </h2>
+
+            {errorMessage !== "" ? (
+              <p className="text-red-800 h-4">{errorMessage}</p>
+            ) : (
+              <p className="h-4"></p>
+            )}
+
             <form onSubmit={handleSubmit}>
               <input
                 onChange={(e) => setUsername(e.target.value)}
@@ -95,9 +103,7 @@ export default function SignUp() {
       ) : (
         <div className="px-8 ">
           <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-xl font-semibold  hover:cursor-pointer">
-            <h2 className="text-center">
-              You have successfully created an account!
-            </h2>
+            <h2 className="text-center leading-snug">{successMessage}</h2>
             <p className="text-sm text-slate-950">
               You can now{" "}
               <Link className="no-underline text-blue-700" href="/signin">

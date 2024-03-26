@@ -9,6 +9,18 @@ export default function UserPage() {
   const [withdraw, setWithdraw] = useState(false);
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [balance, setBalance] = useState(0);
+  const [logOut, setLogOut] = useState(false);
+  const [totalPayments, setTotalPayments] = useState();
+  const [payAll, setPayAll] = useState(false);
+
+  const [paymentVisibility, setPaymentVisibility] = useState({
+    Mobile: true,
+    Internet: true,
+    Electricity: true,
+    Gym: true,
+    Netflix: true,
+  });
+
   console.log(depositAmount);
   console.log(deposit);
 
@@ -112,35 +124,101 @@ export default function UserPage() {
     }
   }, []);
 
-  async function handlePayment(amount) {
+  async function handlePayment(amount, itemName) {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
 
-    try {
-      const response = await fetch("http://localhost:8080/me/accounts/pay", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          // Assuming you need to authenticate the request
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ userId, amount, token }),
-      });
+    // Kolla om det finns tillräckligt mycket på saldot
+    if (balance >= amount) {
+      try {
+        const response = await fetch("http://localhost:8080/me/accounts/pay", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ userId, amount, token }),
+        });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Payment failed");
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Payment failed");
+        }
+
+        // Assuming the server responds with the updated balance
+        const updatedData = await response.json();
+        setBalance(updatedData.newBalance);
+
+        // Set the visibility to false only if the payment was successful
+        setPaymentVisibility((prev) => ({ ...prev, [itemName]: false }));
+
+        alert(`Payment of ${amount} was successful.`);
+      } catch (error) {
+        console.error("Payment error:", error.message);
+        alert(error.message);
       }
+    } else {
+      // Alert the user about insufficient funds
+      alert("Insufficient funds for this payment.");
+    }
+  }
 
-      // Assuming the server responds with the updated balance
-      const updatedData = await response.json();
-      setBalance(updatedData.newBalance);
+  async function handlePayAll(amount) {
+    if (!totalPayments || balance < totalPayments) {
+      alert("Insufficient funds for this payment.");
+      return;
+    }
 
-      alert(`Payment of ${amount} was successful.`);
-    } catch (error) {
-      console.error("Payment error:", error.message);
-      alert(error.message);
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+
+    // Kolla om det finns tillräckligt mycket på saldot
+    if (balance >= totalPayments) {
+      try {
+        const response = await fetch(
+          "http://localhost:8080/me/accounts/pay/all",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              userId,
+              token,
+              totalAmount: totalPayments,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Payment failed");
+        }
+
+        // Assuming the server responds with the updated balance
+        const updatedData = await response.json();
+        setBalance(updatedData.newBalance);
+
+        // Optionally reset visibility
+        setPaymentVisibility({
+          Mobile: false,
+          Internet: false,
+          Electricity: false,
+          Gym: false,
+          Netflix: false,
+        });
+
+        alert(`Payment of ${totalPayments} was successful.`);
+      } catch (error) {
+        console.error("Payment error:", error.message);
+        alert(error.message);
+      }
+    } else {
+      // Alert the user about insufficient funds
+      alert("Insufficient funds for this payment.");
     }
   }
 
@@ -152,15 +230,21 @@ export default function UserPage() {
     }
   }, []);
 
-  // function handlePayment(amount) {
-  //   if (balance >= amount) {
-  //     setBalance((prevBalance) => prevBalance - amount);
+  useEffect(() => {
+    const payments = {
+      Mobile: 649,
+      Internet: 489,
+      Electricity: 310,
+      Gym: 649,
+      Netflix: 109,
+    };
 
-  //     alert("Payment successful!");
-  //   } else {
-  //     alert("Insufficient funds!");
-  //   }
-  // }
+    const total = Object.keys(paymentVisibility)
+      .filter((key) => paymentVisibility[key]) // Filter by visible payments
+      .reduce((sum, key) => sum + payments[key], 0); // Sum up their amounts
+
+    setTotalPayments(total);
+  }, [paymentVisibility]); // Recalculate when paymentVisibility changes
 
   return (
     <div>
@@ -175,24 +259,23 @@ export default function UserPage() {
             <p className="text-slate-200 text-sm">0 physical, 1 virtual</p>
           </div>
           <div className="">
-            <Link href={"/"}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24px"
-                height="24px"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="icon-link"
-              >
-                <path
-                  d="M14 20H6C4.89543 20 4 19.1046 4 18L4 6C4 4.89543 4.89543 4 6 4H14M10 12H21M21 12L18 15M21 12L18 9"
-                  stroke="rgb(226 232 240)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24px"
+              height="24px"
+              viewBox="0 0 24 24"
+              fill="none"
+              className="icon-link hover:cursor-pointer"
+              onClick={() => setLogOut(true)}
+            >
+              <path
+                d="M14 20H6C4.89543 20 4 19.1046 4 18L4 6C4 4.89543 4.89543 4 6 4H14M10 12H21M21 12L18 15M21 12L18 9"
+                stroke="rgb(226 232 240)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </div>
         </div>
         <div className=" flex flex-col bg-slate-900 px-10 py-2 rounded-3xl text-slate-200">
@@ -268,75 +351,95 @@ export default function UserPage() {
           </button>
         </div>
       </div>
-      <div className="bg-slate-100 px-8">
+      <div className="bg-slate-100 px-8 h-2/3">
         <div className="flex justify-between items-center ">
           <h3 className="text-xl">Quickpay </h3>{" "}
           {/* Det här kommer att betala allt på en gång */}
           <div className="flex justify-center items-center hover:cursor-pointer hover:font-semibold">
-            <p className="pr-5 ">Pay all</p>
+            <p onClick={() => setPayAll(true)} className="pr-5 ">
+              Pay all
+            </p>
             <p className="text-4xl hover:cursor-pointer hover:font-semibold text-blue-800">
               +
             </p>
           </div>
         </div>
         <div>
-          <div
-            onClick={() => handlePayment(549)}
-            className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
-          >
-            <div className="flex flex-col">
-              <p className="-mb-1">Mobile Phone</p>
-              <p>549</p>
+          {paymentVisibility.Mobile && (
+            <div
+              onClick={() => handlePayment(649, "Mobile")}
+              className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
+            >
+              <div className="flex flex-col">
+                <p className="-mb-1">Mobile Phone</p>
+                <p>649</p>
+              </div>
+              <div className="flex justify-center items-center">
+                <p className="pr-5">Pay now</p>
+                <p className="text-xl">&rarr;</p>
+              </div>
             </div>
-            <div className="flex justify-center items-center">
-              <p className="pr-5">Pay now</p>
-              <p className="text-xl">&rarr;</p>
-            </div>{" "}
-            {/* Det här kommer att betala enskilda utgifter */}
-          </div>
-          <div
-            onClick={() => handlePayment(499)}
-            className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
-          >
-            <div className="flex flex-col">
-              <p className="-mb-1">Internet</p>
-              <p>499</p>
+          )}
+          {paymentVisibility.Internet && (
+            <div
+              onClick={() => handlePayment(489, "Internet")}
+              className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
+            >
+              <div className="flex flex-col">
+                <p className="-mb-1">Internet</p>
+                <p>489</p>
+              </div>
+              <div className="flex justify-center items-center">
+                <p className="pr-5">Pay now</p>
+                <p className="text-xl">&rarr;</p>
+              </div>
             </div>
-            <div className="flex justify-center items-center">
-              <p className="pr-5">Pay now</p>
-              <p className="text-xl">&rarr;</p>
+          )}
+          {paymentVisibility.Electricity && (
+            <div
+              onClick={() => handlePayment(310, "Electricity")}
+              className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
+            >
+              <div className="flex flex-col">
+                <p className="-mb-1">Electricity</p>
+                <p>310</p>
+              </div>
+              <div className="flex justify-center items-center">
+                <p className="pr-5">Pay now</p>
+                <p className="text-xl">&rarr;</p>
+              </div>
             </div>
-          </div>
-          <div className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400">
-            <div className="flex flex-col">
-              <p className="-mb-1">Electricity</p>
-              <p>300</p>
+          )}
+          {paymentVisibility.Gym && (
+            <div
+              onClick={() => handlePayment(649, "Gym")}
+              className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
+            >
+              <div className="flex flex-col">
+                <p className="-mb-1">Gym</p>
+                <p>649</p>
+              </div>
+              <div className="flex justify-center items-center">
+                <p className="pr-5">Pay now</p>
+                <p className="text-xl">&rarr;</p>
+              </div>
             </div>
-            <div className="flex justify-center items-center">
-              <p className="pr-5">Pay now</p>
-              <p className="text-xl">&rarr;</p>
+          )}
+          {paymentVisibility.Netflix && (
+            <div
+              onClick={() => handlePayment(109, "Netflix")}
+              className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
+            >
+              <div className="flex flex-col">
+                <p className="-mb-1">Netflix</p>
+                <p>109</p>
+              </div>
+              <div className="flex justify-center items-center">
+                <p className="pr-5">Pay now</p>
+                <p className="text-xl">&rarr;</p>
+              </div>
             </div>
-          </div>
-          <div className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400">
-            <div className="flex flex-col">
-              <p className="-mb-1">Gym</p>
-              <p>629</p>
-            </div>
-            <div className="flex justify-center items-center">
-              <p className="pr-5">Pay now</p>
-              <p className="text-xl">&rarr;</p>
-            </div>{" "}
-          </div>
-          <div className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400">
-            <div className="flex flex-col">
-              <p className="-mb-1">Netflix</p>
-              <p>99</p>
-            </div>
-            <div className="flex justify-center items-center">
-              <p className="pr-5">Pay now</p>
-              <p className="text-xl">&rarr;</p>
-            </div>{" "}
-          </div>
+          )}
         </div>
       </div>
       {deposit && (
@@ -415,47 +518,75 @@ export default function UserPage() {
           </div>
         </div>
       )}
+      {logOut && (
+        <div className="sign-in-overlay flex flex-col ">
+          <div className=" fixed top-28 right-8 ">
+            <button
+              onClick={() => setLogOut(false)}
+              className="bg-slate-200 h-8 w-8 flex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="px-8">
+            <div className="leading-snug bg-slate-200 h-full rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-xl font-semibold ">
+              <h2 className="text-center">
+                Do you want to <br /> log out?
+              </h2>
+              <div className="flex  w-full justify-evenly">
+                <button className="mr-3 hover:cursor-pointer border-none h-10 w-32 rounded-full text-base  text-slate-200 bg-blue-950 hover:bg-blue-900">
+                  <Link
+                    className="no-underline text-slate-100 hover:cursor-pointer"
+                    href="/"
+                  >
+                    Yes
+                  </Link>
+                </button>
+                <button
+                  onClick={() => setLogOut(false)}
+                  className="ml-3 hover:cursor-pointer border-none h-10 w-32 rounded-full text-base  text-slate-100 bg-blue-950 hover:bg-blue-900"
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {payAll && (
+        <div className="sign-in-overlay flex flex-col ">
+          <div className=" fixed top-28 right-8 ">
+            <button
+              onClick={() => setLogOut(false)}
+              className="bg-slate-200 h-8 w-8 flex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="px-8">
+            <div className="leading-snug bg-slate-200 h-full rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-xl font-semibold ">
+              <h2 className="text-center">Are you sure you want to pay all?</h2>
+              <div className="flex  w-full justify-evenly">
+                <button
+                  onClick={async () => {
+                    await handlePayAll();
+                    setPayAll(false);
+                  }}
+                  className="mr-3 hover:cursor-pointer border-none h-10 w-32 rounded-full text-base  text-slate-200 bg-blue-950 hover:bg-blue-900"
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={() => setPayAll(false)}
+                  className="ml-3 hover:cursor-pointer border-none h-10 w-32 rounded-full text-base  text-slate-100 bg-blue-950 hover:bg-blue-900"
+                >
+                  No
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-// {
-//   withdraw && (
-//     <div className="sign-in-overlay flex flex-col">
-//       <div className=" fixed top-28 right-8 ">
-//         {" "}
-//         <button
-//           className="bg-slate-200 h-8 w-8 flex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer"
-//           onClick={() => setWithdraw(false)}
-//         >
-//           ✕
-//         </button>
-//       </div>
-//       <div className="px-8">
-//         <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-start  text-xl font-semibold  hover:cursor-pointer">
-//           <h2 className="text-center w-full">Enter Deposit Amount</h2>
-//           {/* <p className="text-sm">Your Session Token: {token}</p> */}
-//           <form onSubmit={handleWithdraw} className=" w-full">
-//             <input
-//               autoFocus
-//               onChange={(e) => setWithdrawAmount(e.target.value)}
-//               type="number"
-//               placeholder="Enter Withdraw Amount"
-//               value={depositAmount}
-//               required
-//               className="h-10 my-8 w-full rounded-xl border-none "
-//             />
-
-//             <button
-//               type="submit"
-//               onClick={handleWithdraw}
-//               className="p-2 hover:cursor-pointer border-none h-10 w-full rounded-full text-base  text-slate-200 bg-blue-950 hover:bg-blue-900"
-//             >
-//               Withdraw
-//             </button>
-//           </form>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
