@@ -5,7 +5,6 @@ import Link from "next/link";
 
 export default function First() {
   const [signInClicked, setSignInClicked] = useState(false);
-  const [bankIdClicked, setBankIdClicked] = useState(false);
   const [signUpClicked, setSignUpClicked] = useState(false);
   const [currentText, setCurrentText] = useState("Banking done right.");
   const [animationPhase, setAnimationPhase] = useState("erasing");
@@ -31,6 +30,7 @@ export default function First() {
       }
       const data = await response.json();
       console.log(data);
+      console.log(data);
     } catch (error) {
       console.error(error);
     }
@@ -39,7 +39,7 @@ export default function First() {
   useEffect(() => {
     let timer;
 
-    const phrases = ["Banking done right.", "Welcome to a smoother bank."];
+    const phrases = ["Banking done right.", "Welcome to a better bank."];
 
     if (animationPhase === "erasing") {
       if (currentText.length > 0) {
@@ -86,23 +86,25 @@ export default function First() {
             <p className="text-2xl text-slate-50">{currentText}</p>
           </div>
         </div>
-        <div className="border-t-2 border-gray-200 p-4 text-slate-50  h-32 flex flex-col justify-evenly items-start">
-          <button
+        <div className="px-8 border-t-2 border-gray-200 p-4 text-slate-50  h-32 flex flex-col justify-evenly items-start">
+          <Link
+            href="/signup"
             onClick={() => setSignUpClicked(true)}
-            className="border-none bg-transparent flex justify-center text-slate-200 rounded-full  text-xl hover:cursor-pointer hover:font-bold"
+            className="no-underline border-none bg-transparent flex justify-center text-slate-200 rounded-full  text-xl hover:cursor-pointer hover:font-bold"
           >
             {" "}
             Open an account &rarr;
-          </button>
-          <button
+          </Link>
+          <Link
+            href="/signin"
             onClick={() => setSignInClicked(true)}
-            className="border-none bg-transparent  text-slate-200 rounded-full  text-xl hover:cursor-pointer hover:font-bold"
+            className="no-underline border-none bg-transparent  text-slate-200 rounded-full  text-xl hover:cursor-pointer hover:font-bold"
           >
             Sign in &rarr;
-          </button>
+          </Link>
         </div>
       </div>
-      {signInClicked && (
+      {/* {signInClicked && (
         <div className="sign-in-overlay flex flex-col">
           <div className=" fixed top-28 right-8 ">
             {" "}
@@ -167,7 +169,7 @@ export default function First() {
           </div>
           <div className="px-8">
             <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-xl font-semibold  hover:cursor-pointer">
-              <h2>One step closer to better baniking</h2>
+              <h2>One step closer to better banking</h2>
               <form onSubmit={handleSubmit}>
                 <input
                   onChange={(e) => setUsername(e.target.value)}
@@ -197,7 +199,7 @@ export default function First() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
