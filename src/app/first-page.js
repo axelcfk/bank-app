@@ -76,7 +76,7 @@ export default function First() {
       <div className="absolute top-0 right-0 pt-5 px-8"></div>
       <div className="flex flex-col h-full ">
         <div className="flex-grow flex flex-col justify-center items-start text-gray-950 px-8">
-          <h1 className=" font-shippori text-5xl md:text-8xl font-thin text-left text-slate-50 -mb-2 mt-40">
+          <h1 className="leading-snug	font-shippori text-5xl md:text-8xl font-thin text-left text-slate-50 -mb-2 mt-40">
             Step into <br />
             the future <br />
             of banking
@@ -93,7 +93,7 @@ export default function First() {
             className="no-underline border-none bg-transparent flex justify-center text-slate-200 rounded-full  text-xl hover:cursor-pointer hover:font-bold"
           >
             {" "}
-            Open an account &rarr;
+            Create account &rarr;
           </Link>
           <Link
             href="/signin"

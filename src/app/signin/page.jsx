@@ -1,14 +1,13 @@
-// Correctly import necessary hooks and components
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation"; // Corrected import for useRouter
+import { useRouter } from "next/navigation";
 
 export default function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const router = useRouter(); // Use useRouter to get the router instance
+  const router = useRouter();
 
   async function handleSignIn(e) {
     e.preventDefault();
@@ -28,16 +27,16 @@ export default function SignIn() {
       const data = await response.json();
 
       if (data.token && data.userId) {
-        // Ensure both token and userId are present
-        localStorage.setItem("token", data.token); // Store token in local storage
-        localStorage.setItem("userId", data.userId); // Store userId in local storage
-        router.push("/userpage"); // Redirect to the user page
+        // Kolla så  att både token och userId finns
+        localStorage.setItem("token", data.token); // Lägg till token i local storage
+        localStorage.setItem("userId", data.userId); // Lägg till userId i local storage
+        router.push("/userpage"); // Gå till userpage
       } else {
         throw new Error("Authentication failed, no token or userId received.");
       }
     } catch (error) {
       console.error(error);
-      alert(error.message); // Providing feedback to the user
+      alert(error.message);
     }
   }
 
@@ -60,7 +59,7 @@ export default function SignIn() {
               value={username}
               placeholder="   Username"
               required
-              className="h-10 w-full rounded-xl border-none "
+              className="h-10 w-full rounded-xl border-none"
             />
 
             <input

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 
 export default function UserPage() {
   const [deposit, setDeposit] = useState(false);
-  const [depositAmount, setDepositAmount] = useState(10);
+  const [depositAmount, setDepositAmount] = useState(0);
   const [balance, setBalance] = useState(0);
   console.log(depositAmount);
   console.log(deposit);
@@ -61,7 +61,7 @@ export default function UserPage() {
         throw new Error(errorData.message || "Failed to deposit");
       }
 
-      // Fetch det uppdaterade saldot efter deposit
+      // Hämta det uppdaterade saldot efter deposit
       fetchBalance();
     } catch (error) {
       console.error("Deposit error:", error.message);
@@ -70,12 +70,12 @@ export default function UserPage() {
   }
 
   useEffect(() => {
-    fetchBalance(); // Fetch the initial balance when the component mounts
-    const token = localStorage.getItem("token"); // Fetch the token from localStorage
+    fetchBalance(); // Hämta saldo när sidan visas
+    const token = localStorage.getItem("token"); // Hämta  token från localStorage
     if (token) {
-      setToken(token); // Set the token state
+      setToken(token); // Sätt state för token
     }
-  }, []); // Empty dependency array means this effect runs once on mount
+  }, []);
 
   return (
     <div>
@@ -241,9 +241,9 @@ export default function UserPage() {
             </button>
           </div>
           <div className="px-8">
-            <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-start mb-10 text-xl font-semibold  hover:cursor-pointer">
-              <h2 className="text-left w-full">Enter Deposit Amount</h2>
-              <p className="text-sm">Your Session Token: {token}</p>
+            <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-start  text-xl font-semibold  hover:cursor-pointer">
+              <h2 className="text-center w-full">Enter Deposit Amount</h2>
+              {/* <p className="text-sm">Your Session Token: {token}</p> */}
               <form onSubmit={handleDeposit} className=" w-full">
                 <input
                   autoFocus
@@ -252,15 +252,9 @@ export default function UserPage() {
                   placeholder="Enter Deposit Amount"
                   value={depositAmount}
                   required
-                  className="h-10  w-full rounded-xl border-none "
+                  className="h-10 my-8 w-full rounded-xl border-none "
                 />
-                <input
-                  autoFocus
-                  type="password"
-                  placeholder="Enter Your Session Token"
-                  required
-                  className="h-10 my-5 w-full rounded-xl border-none "
-                />
+
                 <button
                   type="submit"
                   onClick={handleDeposit}
