@@ -60,9 +60,9 @@ export default function SignUp() {
             </h2>
 
             {errorMessage !== "" ? (
-              <p className="text-red-800 h-4">{errorMessage}</p>
+              <p className="text-red-800 h-2">{errorMessage}</p>
             ) : (
-              <p className="h-4"></p>
+              <p className="h-2"></p>
             )}
 
             <form onSubmit={handleSubmit}>
@@ -73,7 +73,7 @@ export default function SignUp() {
                 required
                 autoFocus
                 placeholder="   Username"
-                className="h-10 w-full rounded-xl border-none "
+                className="text-center mt-5 h-10 w-full rounded-xl border-none "
               />
 
               <input
@@ -82,7 +82,7 @@ export default function SignUp() {
                 value={password}
                 required
                 placeholder="   Password"
-                className=" h-10 my-5 w-full rounded-xl border-none "
+                className="text-center h-10 my-5 w-full rounded-xl border-none "
               />
               <button
                 type="submit"

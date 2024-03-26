@@ -284,8 +284,8 @@ export default function UserPage() {
           <div className="">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24px"
-              height="24px"
+              width="18px"
+              height="18px"
               viewBox="0 0 24 24"
               fill="none"
               className="icon-link hover:cursor-pointer"
@@ -325,7 +325,7 @@ export default function UserPage() {
           </div>
           <div className=" flex flex-row  justify-between items-end ">
             <div className="flex flex-col">
-              <p className="-mb-2 text-5xl font-semibold">
+              <p className="-mb-2 text-4xl font-semibold">
                 {balance.toFixed(2)}
               </p>
               <p className="font-thin text-sm">Total Balance SEK</p>
@@ -378,16 +378,26 @@ export default function UserPage() {
         <div className="flex justify-between items-center ">
           <h3 className="text-xl">Quickpay </h3>{" "}
           {/* Det här kommer att betala allt på en gång */}
-          <div className="flex  justify-center items-center hover:cursor-pointer hover:font-semibold">
-            <p onClick={() => setPayAll(true)} className="pr-5 ">
-              Pay all
-            </p>
+          <div
+            onClick={() => setPayAll(true)}
+            className="flex  justify-center items-center hover:cursor-pointer hover:font-semibold"
+          >
+            <p className="pr-5 ">Pay all</p>
             <p className="text-4xl hover:cursor-pointer hover:font-semibold text-blue-800">
               +
             </p>
           </div>
         </div>
-        {!paymentVisibility && <div>No more payments</div>}
+        {paymentVisibility.Mobile === false &&
+          paymentVisibility.Internet === false &&
+          paymentVisibility.Gym === false &&
+          paymentVisibility.Netflix === false &&
+          paymentVisibility.Electricity === false && (
+            <div className=" flex justify-center items-center mt-12">
+              {" "}
+              <p className="text-xl">You have no more payments</p>
+            </div>
+          )}
         <div>
           {paymentVisibility.Mobile && (
             <div
@@ -491,7 +501,7 @@ export default function UserPage() {
                   placeholder="Enter Deposit Amount"
                   value={depositAmount}
                   required
-                  className="h-10 my-8 w-full rounded-xl border-none "
+                  className="text-center flex justify-center items-center decoration-none h-10 my-8 w-full rounded-xl border-none "
                 />
 
                 <button
@@ -531,7 +541,7 @@ export default function UserPage() {
                   placeholder="Enter Withdraw Amount"
                   value={withdrawAmount}
                   required
-                  className="h-10 my-8 w-full rounded-xl border-none "
+                  className="text-center h-10 my-8 w-full rounded-xl border-none "
                 />
 
                 <button

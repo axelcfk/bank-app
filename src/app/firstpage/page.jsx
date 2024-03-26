@@ -15,7 +15,7 @@ export default function First() {
   useEffect(() => {
     let timer;
 
-    const phrases = ["Banking done right.", "Welcome to a better bank."];
+    const phrases = ["Banking done right.", "A better bank."];
 
     if (animationPhase === "erasing") {
       if (currentText.length > 0) {
@@ -49,24 +49,44 @@ export default function First() {
         className="absolute w-screen h-screen bg-cover bg-[url('/rock2.jpg')] opacity-100"
         style={{ zIndex: -1 }}
       ></div>
+
       <div className="absolute top-0 right-0 pt-5 px-8"></div>
+
       <div className="flex flex-col h-full ">
+        <h3 className="flex text-3xl text-slate-100 justify-center items-center">
+          CHAS{" "}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="40px"
+            height="40px"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="px-1"
+          >
+            <path
+              fillRule="evenodd"
+              clipRule="evenodd"
+              d="M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21ZM6.63603 7.63605L8.05024 6.22183L13.7071 11.8787L8.05024 17.5355L6.63603 16.1213L10.8787 11.8787L6.63603 7.63605ZM16.5355 11.8787L12.2929 7.63605L13.7071 6.22183L19.364 11.8787L13.7071 17.5355L12.2929 16.1213L16.5355 11.8787Z"
+              fill="rgb(226 232 240)"
+            />
+          </svg>
+        </h3>
         <div className="flex-grow flex flex-col justify-center items-start text-gray-950 px-8">
-          <h1 className="leading-snug	font-shippori text-5xl md:text-8xl font-thin text-left text-slate-50 -mb-2 mt-40">
+          <h1 className="leading-snug	font-shippori text-6xl md:text-8xl font-thin text-left text-slate-50 -mb-2 ">
             Step into <br />
             the future <br />
             of banking
           </h1>
 
           <div className="h-5">
-            <p className="text-2xl text-slate-50">{currentText}</p>
+            <p className="text-3xl text-slate-50">{currentText}</p>
           </div>
         </div>
         <div className="px-8 border-t-2 border-gray-200 p-4 text-slate-50  h-32 flex flex-col justify-evenly items-start">
           <Link
             href="/signup"
             onClick={() => setSignUpClicked(true)}
-            className="no-underline border-none bg-transparent flex justify-center text-slate-200 rounded-full  text-xl hover:cursor-pointer hover:font-bold"
+            className="no-underline border-none bg-transparent flex justify-center text-slate-200 rounded-full  text-2xl hover:cursor-pointer hover:font-bold"
           >
             {" "}
             Create account &rarr;
@@ -74,7 +94,7 @@ export default function First() {
           <Link
             href="/signin"
             onClick={() => setSignInClicked(true)}
-            className="no-underline border-none bg-transparent  text-slate-200 rounded-full  text-xl hover:cursor-pointer hover:font-bold"
+            className="no-underline border-none bg-transparent  text-slate-200 rounded-full  text-2xl hover:cursor-pointer hover:font-bold"
           >
             Sign in &rarr;
           </Link>

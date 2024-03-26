@@ -60,7 +60,7 @@ export default function SignIn() {
               placeholder="   Username"
               required
               autoFocus
-              className="h-10 w-full rounded-xl border-none"
+              className="text-center h-10 w-full rounded-xl border-none"
             />
 
             <input
@@ -69,7 +69,7 @@ export default function SignIn() {
               value={password}
               placeholder="   Password"
               required
-              className="h-10 my-5 w-full rounded-xl border-none "
+              className="text-center h-10 my-5 w-full rounded-xl border-none "
             />
             <button
               type="submit"
