@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function UserPage() {
+  const router = useRouter();
+
   const [deposit, setDeposit] = useState(false);
   const [depositAmount, setDepositAmount] = useState("");
   const [withdraw, setWithdraw] = useState(false);
@@ -164,7 +167,7 @@ export default function UserPage() {
     }
   }
 
-  async function handlePayAll(amount) {
+  async function handlePayAll() {
     if (!totalPayments || balance < totalPayments) {
       alert("Insufficient funds for this payment.");
       return;
@@ -182,8 +185,6 @@ export default function UserPage() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Accept: "application/json",
-              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
               userId,
@@ -220,6 +221,28 @@ export default function UserPage() {
       // Alert the user about insufficient funds
       alert("Insufficient funds for this payment.");
     }
+  }
+
+  async function handleLogOut() {
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("http://localhost:8080/logout", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ token }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to log out with status: ${response.status}`);
+    }
+
+    localStorage.removeItem("userId");
+    localStorage.removeItem("token");
+
+    router.push("/");
   }
 
   useEffect(() => {
@@ -351,11 +374,11 @@ export default function UserPage() {
           </button>
         </div>
       </div>
-      <div className="bg-slate-100 px-8 h-2/3">
+      <div className="bg-slate-100 px-8 h-screen">
         <div className="flex justify-between items-center ">
           <h3 className="text-xl">Quickpay </h3>{" "}
           {/* Det här kommer att betala allt på en gång */}
-          <div className="flex justify-center items-center hover:cursor-pointer hover:font-semibold">
+          <div className="flex  justify-center items-center hover:cursor-pointer hover:font-semibold">
             <p onClick={() => setPayAll(true)} className="pr-5 ">
               Pay all
             </p>
@@ -364,6 +387,7 @@ export default function UserPage() {
             </p>
           </div>
         </div>
+        {!paymentVisibility && <div>No more payments</div>}
         <div>
           {paymentVisibility.Mobile && (
             <div
@@ -455,7 +479,9 @@ export default function UserPage() {
           </div>
           <div className="px-8">
             <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-start  text-xl font-semibold  hover:cursor-pointer">
-              <h2 className="text-center w-full">Enter Deposit Amount</h2>
+              <h2 className="leading-snug text-center w-full">
+                Enter Deposit Amount
+              </h2>
               {/* <p className="text-sm">Your Session Token: {token}</p> */}
               <form onSubmit={handleDeposit} className=" w-full">
                 <input
@@ -493,7 +519,9 @@ export default function UserPage() {
           </div>
           <div className="px-8">
             <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-start  text-xl font-semibold  hover:cursor-pointer">
-              <h2 className="text-center w-full">Enter Deposit Amount</h2>
+              <h2 className="leading-snug text-center w-full">
+                Enter Withdraw Amount
+              </h2>
               {/* <p className="text-sm">Your Session Token: {token}</p> */}
               <form onSubmit={handleWithdraw} className=" w-full">
                 <input
@@ -534,13 +562,11 @@ export default function UserPage() {
                 Do you want to <br /> log out?
               </h2>
               <div className="flex  w-full justify-evenly">
-                <button className="mr-3 hover:cursor-pointer border-none h-10 w-32 rounded-full text-base  text-slate-200 bg-blue-950 hover:bg-blue-900">
-                  <Link
-                    className="no-underline text-slate-100 hover:cursor-pointer"
-                    href="/"
-                  >
-                    Yes
-                  </Link>
+                <button
+                  onClick={handleLogOut}
+                  className="mr-3 hover:cursor-pointer border-none h-10 w-32 rounded-full text-base  text-slate-200 bg-blue-950 hover:bg-blue-900"
+                >
+                  Yes
                 </button>
                 <button
                   onClick={() => setLogOut(false)}

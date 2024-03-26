@@ -82,7 +82,7 @@ export default function SignUp() {
                 value={password}
                 required
                 placeholder="   Password"
-                className="h-10 my-5 w-full rounded-xl border-none "
+                className=" h-10 my-5 w-full rounded-xl border-none "
               />
               <button
                 type="submit"
