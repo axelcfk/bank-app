@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 
 export default function UserPage() {
   const [deposit, setDeposit] = useState(false);
-  const [depositAmount, setDepositAmount] = useState(0);
+  const [depositAmount, setDepositAmount] = useState("");
   const [balance, setBalance] = useState(0);
   console.log(depositAmount);
   console.log(deposit);
@@ -133,7 +133,7 @@ export default function UserPage() {
           </div>
           <div className=" flex flex-row  justify-between items-end ">
             <div className="flex flex-col">
-              <p className="-mb-2 text-4xl font-semibold">
+              <p className="-mb-2 text-5xl font-semibold">
                 {balance.toFixed(2)}
               </p>
               <p className="font-thin text-sm">Total Balance SEK</p>
@@ -172,7 +172,7 @@ export default function UserPage() {
             Withdraw
           </p> */}
           <button
-            onClick={() => setDeposit(true)}
+            onClick={() => (setDeposit(true), setDepositAmount(""))}
             className="border-none my-8 hover:cursor-pointer hover:bg-slate-200 bg-slate-100 h-8 w-24 rounded-full flex justify-center items-center"
           >
             Deposit

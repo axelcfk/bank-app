@@ -50,8 +50,8 @@ export default function SignIn() {
         </button>
       </div>
       <div className="px-8">
-        <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-xl font-semibold  hover:cursor-pointer">
-          <h2>Welcome</h2>
+        <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-xl font-semibold ">
+          <h2 className="mb-10">Welcome</h2>
           <form onSubmit={handleSignIn}>
             <input
               onChange={(e) => setUsername(e.target.value)}
@@ -59,6 +59,7 @@ export default function SignIn() {
               value={username}
               placeholder="   Username"
               required
+              autoFocus
               className="h-10 w-full rounded-xl border-none"
             />
 

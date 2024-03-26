@@ -12,30 +12,6 @@ export default function First() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    console.log(`username: ${username}`);
-    console.log(`password: ${password}`);
-
-    try {
-      const response = await fetch("https://localhost:5000/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to create account");
-      }
-      const data = await response.json();
-      console.log(data);
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
   useEffect(() => {
     let timer;
 
@@ -203,3 +179,27 @@ export default function First() {
     </div>
   );
 }
+
+// async function handleSubmit(e) {
+//   e.preventDefault();
+//   console.log(`username: ${username}`);
+//   console.log(`password: ${password}`);
+
+//   try {
+//     const response = await fetch("https://localhost:5000/users", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({ username, password }),
+//     });
+//     if (!response.ok) {
+//       throw new Error("Failed to create account");
+//     }
+//     const data = await response.json();
+//     console.log(data);
+//     console.log(data);
+//   } catch (error) {
+//     console.error(error);
+//   }
+// }

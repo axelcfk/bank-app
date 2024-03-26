@@ -53,14 +53,17 @@ export default function SignUp() {
       </div>
       {successMessage === "" ? (
         <div className="px-8">
-          <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-xl font-semibold  hover:cursor-pointer">
-            <h2>One step closer to better banking</h2>
+          <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-xl font-semibold  ">
+            <h2 className="leading-snug text-center">
+              One step closer to better banking
+            </h2>
             <form onSubmit={handleSubmit}>
               <input
                 onChange={(e) => setUsername(e.target.value)}
                 type="text"
                 value={username}
                 required
+                autoFocus
                 placeholder="   Username"
                 className="h-10 w-full rounded-xl border-none "
               />
