@@ -46,14 +46,14 @@ export default function First() {
   return (
     <div className="relative w-screen h-screen">
       <div
-        className="absolute w-screen h-screen bg-cover bg-[url('/rock2.jpg')] opacity-100"
+        className="absolute w-full h-full bg-cover bg-[url('/rock2.jpg')] opacity-100"
         style={{ zIndex: -1 }}
       ></div>
 
       <div className="absolute top-0 right-0 pt-5 px-8"></div>
 
       <div className="flex flex-col h-full ">
-        <h3 className="flex text-3xl text-slate-100 justify-center items-center">
+        <h3 className="flex text-3xl text-slate-100 justify-start items-center px-8">
           CHAS{" "}
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -72,7 +72,7 @@ export default function First() {
           </svg>
         </h3>
         <div className="flex-grow flex flex-col justify-center items-start text-gray-950 px-8">
-          <h1 className="leading-snug	font-shippori text-6xl md:text-8xl font-thin text-left text-slate-50 -mb-2 ">
+          <h1 className="leading-tight	font-shippori text-6xl md:text-8xl font-thin text-left text-slate-50 -mb-2 ">
             Step into <br />
             the future <br />
             of banking

@@ -43,18 +43,19 @@ export default function SignUp() {
       className="sign-in-overlay flex flex-col  bg-cover bg-[url('/rock2.jpg')]"
       style={{ backdropFilter: "blur(40px)" }}
     >
-      <div className=" fixed top-28 right-8 ">
-        {" "}
-        <button className=" bg-slate-200 h-8 w-8 flex text-xl justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer font-semibold">
-          <Link className="no-underline" href="/">
-            {" "}
-            ✕
-          </Link>
-        </button>
-      </div>
       {successMessage === "" ? (
         <div className="px-8">
           <div className="bg-slate-200 h-full rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-lg font-semibold  ">
+            <div className=" w-full flex justify-end items-center">
+              <div className=" ">
+                <Link className="no-underline" href="/">
+                  <button className="bg-slate-50 h-8 w-8 text-xlflex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer -mr-5">
+                    ✕
+                  </button>
+                </Link>
+              </div>
+            </div>
+
             <h2 className="leading-snug text-center">
               One step closer to better banking
             </h2>
@@ -62,7 +63,7 @@ export default function SignUp() {
             {errorMessage !== "" ? (
               <p className="text-red-800 h-2">{errorMessage}</p>
             ) : (
-              <p className="h-2"></p>
+              <p className="h-1"></p>
             )}
 
             <form onSubmit={handleSubmit}>
@@ -73,7 +74,7 @@ export default function SignUp() {
                 required
                 autoFocus
                 placeholder="   Username"
-                className="text-center mt-5 h-10 w-full rounded-xl border-none "
+                className="text-center mt-5 h-10 w-full rounded-xl border-none text-xl"
               />
 
               <input
@@ -82,7 +83,7 @@ export default function SignUp() {
                 value={password}
                 required
                 placeholder="   Password"
-                className="text-center h-10 my-5 w-full rounded-xl border-none "
+                className="text-center h-10 my-5 w-full rounded-xl border-none text-xl"
               />
               <button
                 type="submit"

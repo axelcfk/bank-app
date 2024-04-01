@@ -42,15 +42,18 @@ export default function SignIn() {
 
   return (
     <div className="sign-in-overlay flex flex-col bg-cover bg-[url('/rock2.jpg')]">
-      <div className=" fixed top-28 right-8 ">
-        <button className="bg-slate-200 h-8 w-8 flex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer">
-          <Link className="no-underline" href="/">
-            ✕
-          </Link>
-        </button>
-      </div>
       <div className="px-8">
         <div className="bg-slate-200 h-full rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-xl font-semibold ">
+          <div className=" w-full flex justify-end items-center">
+            <div className=" ">
+              <Link className="no-underline" href="/">
+                <button className="bg-slate-50 h-8 w-8 text-xlflex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer -mr-5">
+                  ✕
+                </button>
+              </Link>
+            </div>
+          </div>
+
           <h2 className="mb-10">Welcome</h2>
           <form onSubmit={handleSignIn}>
             <input
@@ -60,7 +63,7 @@ export default function SignIn() {
               placeholder="   Username"
               required
               autoFocus
-              className="text-center h-10 w-full rounded-xl border-none"
+              className="text-center h-10 w-full rounded-xl border-none text-xl"
             />
 
             <input
@@ -69,7 +72,7 @@ export default function SignIn() {
               value={password}
               placeholder="   Password"
               required
-              className="text-center h-10 my-5 w-full rounded-xl border-none "
+              className="text-center h-10 my-5 w-full rounded-xl border-none text-xl"
             />
             <button
               type="submit"

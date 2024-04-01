@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Clock from "../clock";
 
 export default function UserPage() {
   const router = useRouter();
@@ -15,6 +15,9 @@ export default function UserPage() {
   const [logOut, setLogOut] = useState(false);
   const [totalPayments, setTotalPayments] = useState();
   const [payAll, setPayAll] = useState(false);
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [paymentVisibility, setPaymentVisibility] = useState({
     Mobile: true,
@@ -156,20 +159,20 @@ export default function UserPage() {
         // Set the visibility to false only if the payment was successful
         setPaymentVisibility((prev) => ({ ...prev, [itemName]: false }));
 
-        alert(`Payment of ${amount} was successful.`);
+        setSuccessMessage(`Payment of ${amount} was successful.`);
       } catch (error) {
         console.error("Payment error:", error.message);
         alert(error.message);
       }
     } else {
       // Alert the user about insufficient funds
-      alert("Insufficient funds for this payment.");
+      setErrorMessage("Insufficient funds for this payment.");
     }
   }
 
   async function handlePayAll() {
     if (!totalPayments || balance < totalPayments) {
-      alert("Insufficient funds for this payment.");
+      setErrorMessage("Insufficient funds for this payment.");
       return;
     }
 
@@ -212,14 +215,14 @@ export default function UserPage() {
           Netflix: false,
         });
 
-        alert(`Payment of ${totalPayments} was successful.`);
+        setSuccessMessage(`Payment of ${totalPayments} was successful.`);
       } catch (error) {
         console.error("Payment error:", error.message);
         alert(error.message);
       }
     } else {
       // Alert the user about insufficient funds
-      alert("Insufficient funds for this payment.");
+      setErrorMessage("Insufficient funds for this payment.");
     }
   }
 
@@ -267,17 +270,18 @@ export default function UserPage() {
       .reduce((sum, key) => sum + payments[key], 0); // Sum up their amounts
 
     setTotalPayments(total);
-  }, [paymentVisibility]); // Recalculate when paymentVisibility changes
+  }, [paymentVisibility]);
 
   return (
     <div>
       <div
-        className="absolute w-screen h-screen bg-cover bg-[url('/rock.jpg')] "
+        className="absolute w-screen h-screen bg-cover bg-[url('/house.jpg')] "
         style={{ zIndex: -1 }}
       ></div>
-      <div className="px-8" style={{ backdropFilter: "blur(2px)" }}>
+      <div className="px-8" style={{ backdropFilter: "blur(3px)" }}>
         <div className="flex justify-between items-center">
           <div className="py-5">
+            <Clock />
             <h2 className="text-slate-200 text-xl -mb-2">Your Cards</h2>
             <p className="text-slate-200 text-sm">0 physical, 1 virtual</p>
           </div>
@@ -301,6 +305,7 @@ export default function UserPage() {
             </svg>
           </div>
         </div>
+
         <div className=" flex flex-col bg-slate-900 px-10 py-2 rounded-3xl text-slate-200">
           <div className="flex justify-between items-center text-slate-200">
             <h3 className="flex justify-center items-center">
@@ -359,35 +364,43 @@ export default function UserPage() {
             </div>
           </div>
         </div>
-        <div className="flex justify-evenly py-5">
+        <div className="flex justify-evenly items-center py-5  w-full">
           <button
             onClick={() => (setDeposit(true), setDepositAmount(""))}
-            className="border-none my-8 hover:cursor-pointer hover:bg-slate-200 bg-slate-100 h-8 w-24 rounded-full flex justify-center items-center"
+            className="-mr-5 border-none my-8 hover:cursor-pointer hover:bg-slate-200 bg-slate-100 h-8 w-24 rounded-full flex justify-center items-center"
           >
             Deposit
           </button>
           <button
             onClick={() => (setWithdraw(true), setWithdrawAmount(""))}
-            className="border-none my-8 hover:cursor-pointer hover:bg-slate-200 bg-slate-100 h-8 w-24 rounded-full flex justify-center items-center"
+            className="-ml-5 border-none my-8 hover:cursor-pointer hover:bg-slate-200 bg-slate-100 h-8 w-24 rounded-full flex justify-center items-center"
           >
             Withdraw
           </button>
         </div>
       </div>
       <div className="bg-slate-100 px-8 h-screen">
-        <div className="flex justify-between items-center ">
-          <h3 className="text-xl">Quickpay </h3>{" "}
-          {/* Det här kommer att betala allt på en gång */}
-          <div
-            onClick={() => setPayAll(true)}
-            className="flex  justify-center items-center hover:cursor-pointer hover:font-semibold"
-          >
-            <p className="pr-5 ">Pay all</p>
-            <p className="text-4xl hover:cursor-pointer hover:font-semibold text-blue-800">
-              +
-            </p>
+        {paymentVisibility.Mobile === false &&
+        paymentVisibility.Internet === false &&
+        paymentVisibility.Gym === false &&
+        paymentVisibility.Netflix === false &&
+        paymentVisibility.Electricity === false ? (
+          <div className="h-10"></div>
+        ) : (
+          <div className="flex justify-between items-center ">
+            <h3 className="text-xl">Quickpay </h3>{" "}
+            {/* Det här kommer att betala allt på en gång */}
+            <div
+              onClick={() => setPayAll(true)}
+              className="flex  justify-center items-center hover:cursor-pointer hover:font-semibold"
+            >
+              <p className="pr-5 ">Pay all</p>
+              <p className="text-4xl hover:cursor-pointer hover:font-semibold text-blue-800">
+                +
+              </p>
+            </div>
           </div>
-        </div>
+        )}
         {paymentVisibility.Mobile === false &&
           paymentVisibility.Internet === false &&
           paymentVisibility.Gym === false &&
@@ -395,20 +408,22 @@ export default function UserPage() {
           paymentVisibility.Electricity === false && (
             <div className=" flex justify-center items-center mt-12">
               {" "}
-              <p className="text-xl">You have no more payments</p>
+              <p className="text-xl bg-slate-200 rounded-3xl h-20 w-full text-center flex justify-center items-center">
+                You have no more payments
+              </p>
             </div>
           )}
         <div>
           {paymentVisibility.Mobile && (
             <div
               onClick={() => handlePayment(649, "Mobile")}
-              className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
+              className=" flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
             >
               <div className="flex flex-col">
                 <p className="-mb-1">Mobile Phone</p>
                 <p>649</p>
               </div>
-              <div className="flex justify-center items-center">
+              <div className="hover:cursor-pointer hover:font-semibold hover:bg-slate-300 bg-slate-200 w-40 rounded-full h-14 flex justify-center items-center">
                 <p className="pr-5">Pay now</p>
                 <p className="text-xl">&rarr;</p>
               </div>
@@ -417,13 +432,13 @@ export default function UserPage() {
           {paymentVisibility.Internet && (
             <div
               onClick={() => handlePayment(489, "Internet")}
-              className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
+              className=" flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
             >
               <div className="flex flex-col">
                 <p className="-mb-1">Internet</p>
                 <p>489</p>
               </div>
-              <div className="flex justify-center items-center">
+              <div className="hover:cursor-pointer hover:font-semibold hover:bg-slate-300 bg-slate-200 w-40 rounded-full h-14 flex justify-center items-center">
                 <p className="pr-5">Pay now</p>
                 <p className="text-xl">&rarr;</p>
               </div>
@@ -432,13 +447,13 @@ export default function UserPage() {
           {paymentVisibility.Electricity && (
             <div
               onClick={() => handlePayment(310, "Electricity")}
-              className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
+              className=" flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
             >
               <div className="flex flex-col">
                 <p className="-mb-1">Electricity</p>
                 <p>310</p>
               </div>
-              <div className="flex justify-center items-center">
+              <div className="hover:cursor-pointer hover:font-semibold hover:bg-slate-300 bg-slate-200 w-40 rounded-full h-14 flex justify-center items-center">
                 <p className="pr-5">Pay now</p>
                 <p className="text-xl">&rarr;</p>
               </div>
@@ -447,13 +462,13 @@ export default function UserPage() {
           {paymentVisibility.Gym && (
             <div
               onClick={() => handlePayment(649, "Gym")}
-              className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
+              className=" flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
             >
               <div className="flex flex-col">
                 <p className="-mb-1">Gym</p>
                 <p>649</p>
               </div>
-              <div className="flex justify-center items-center">
+              <div className="hover:cursor-pointer hover:font-semibold hover:bg-slate-300 bg-slate-200 w-40 rounded-full h-14 flex justify-center items-center">
                 <p className="pr-5">Pay now</p>
                 <p className="text-xl">&rarr;</p>
               </div>
@@ -462,13 +477,13 @@ export default function UserPage() {
           {paymentVisibility.Netflix && (
             <div
               onClick={() => handlePayment(109, "Netflix")}
-              className="hover:cursor-pointer hover:font-semibold flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
+              className=" flex justify-between items-center border-solid border-t-0 border-r-0 border-l-0 border-b-[0.5px] border-stone-400"
             >
               <div className="flex flex-col">
                 <p className="-mb-1">Netflix</p>
                 <p>109</p>
               </div>
-              <div className="flex justify-center items-center">
+              <div className="hover:cursor-pointer hover:font-semibold hover:bg-slate-300 bg-slate-200 w-40 rounded-full h-14 flex justify-center items-center">
                 <p className="pr-5">Pay now</p>
                 <p className="text-xl">&rarr;</p>
               </div>
@@ -478,22 +493,23 @@ export default function UserPage() {
       </div>
       {deposit && (
         <div className="sign-in-overlay flex flex-col">
-          <div className=" fixed top-28 right-8 ">
-            {" "}
-            <button
-              className="bg-slate-200 h-8 w-8 flex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer"
-              onClick={() => setDeposit(false)}
-            >
-              ✕
-            </button>
-          </div>
           <div className="px-8">
             <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-start  text-xl font-semibold  hover:cursor-pointer">
+              <div className=" w-full flex justify-end items-center">
+                <div className=" ">
+                  <button
+                    onClick={() => setDeposit(false)}
+                    className="bg-slate-50 h-8 w-8 text-xlflex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer -mr-5"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
               <h2 className="leading-snug text-center w-full">
                 Enter Deposit Amount
               </h2>
               {/* <p className="text-sm">Your Session Token: {token}</p> */}
-              <form onSubmit={handleDeposit} className=" w-full">
+              <form onSubmit={handleDeposit} className=" w-full ">
                 <input
                   autoFocus
                   onChange={(e) => setDepositAmount(e.target.value)}
@@ -501,7 +517,7 @@ export default function UserPage() {
                   placeholder="Enter Deposit Amount"
                   value={depositAmount}
                   required
-                  className="text-center flex justify-center items-center decoration-none h-10 my-8 w-full rounded-xl border-none "
+                  className="text-center flex justify-center items-center decoration-none h-10 my-8 w-full rounded-xl border-none text-xl"
                 />
 
                 <button
@@ -516,19 +532,41 @@ export default function UserPage() {
           </div>
         </div>
       )}
+      {errorMessage !== "" && (
+        <div className="sign-in-overlay flex flex-col">
+          <div className="px-8">
+            <div className="bg-slate-200 h-60 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-start  text-xl font-semibold  hover:cursor-pointer">
+              <div className=" w-full flex justify-end items-center -mt-10">
+                <div className=" ">
+                  <button
+                    onClick={() => setErrorMessage("")}
+                    className="bg-slate-50 h-8 w-8 text-xlflex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer -mr-5"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+              <h2 className="leading-snug text-center w-full text-2xl">
+                {errorMessage}
+              </h2>
+            </div>
+          </div>
+        </div>
+      )}
       {withdraw && (
         <div className="sign-in-overlay flex flex-col">
-          <div className=" fixed top-28 right-8 ">
-            {" "}
-            <button
-              className="bg-slate-200 h-8 w-8 flex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer"
-              onClick={() => setWithdraw(false)}
-            >
-              ✕
-            </button>
-          </div>
           <div className="px-8">
             <div className="bg-slate-200 h-96 rounded-lg px-10 text-slate-950 flex flex-col justify-center items-start  text-xl font-semibold  hover:cursor-pointer">
+              <div className=" w-full flex justify-end items-center">
+                <div className=" ">
+                  <button
+                    onClick={() => setWithdraw(false)}
+                    className="bg-slate-50 h-8 w-8 text-xlflex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer -mr-5"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
               <h2 className="leading-snug text-center w-full">
                 Enter Withdraw Amount
               </h2>
@@ -541,7 +579,7 @@ export default function UserPage() {
                   placeholder="Enter Withdraw Amount"
                   value={withdrawAmount}
                   required
-                  className="text-center h-10 my-8 w-full rounded-xl border-none "
+                  className="text-center h-10 my-8 w-full rounded-xl border-none text-xl"
                 />
 
                 <button
@@ -558,23 +596,26 @@ export default function UserPage() {
       )}
       {logOut && (
         <div className="sign-in-overlay flex flex-col ">
-          <div className=" fixed top-28 right-8 ">
-            <button
-              onClick={() => setLogOut(false)}
-              className="bg-slate-200 h-8 w-8 flex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
           <div className="px-8">
             <div className="leading-snug bg-slate-200 h-full rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-xl font-semibold ">
+              <div className=" w-full flex justify-end items-center">
+                <div className=" ">
+                  <button
+                    onClick={() => setLogOut(false)}
+                    className="bg-slate-50 h-8 w-8 text-xlflex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer -mr-5"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
               <h2 className="text-center">
                 Do you want to <br /> log out?
               </h2>
               <div className="flex  w-full justify-evenly">
                 <button
                   onClick={handleLogOut}
-                  className="mr-3 hover:cursor-pointer border-none h-10 w-32 rounded-full text-base  text-slate-200 bg-blue-950 hover:bg-blue-900"
+                  className="mr-3 hover:cursor-pointer border-none h-10 w-32 rounded-full text-base  text-slate-950 bg-slate-300 hover:bg-slate-400"
                 >
                   Yes
                 </button>
@@ -591,24 +632,26 @@ export default function UserPage() {
       )}
       {payAll && (
         <div className="sign-in-overlay flex flex-col ">
-          <div className=" fixed top-28 right-8 ">
-            <button
-              onClick={() => setLogOut(false)}
-              className="bg-slate-200 h-8 w-8 flex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer"
-            >
-              ✕
-            </button>
-          </div>
           <div className="px-8">
             <div className="leading-snug bg-slate-200 h-full rounded-lg px-10 text-slate-950 flex flex-col justify-center items-center mb-10 text-xl font-semibold ">
-              <h2 className="text-center">Are you sure you want to pay all?</h2>
-              <div className="flex  w-full justify-evenly">
+              <div className=" w-full flex justify-end items-center">
+                <button
+                  onClick={() => setPayAll(false)}
+                  className="bg-slate-50 h-8 w-8 text-xlflex justify-center items-center rounded-full border-none hover:bg-slate-300 hover:cursor-pointer -mr-5"
+                >
+                  ✕
+                </button>
+              </div>
+              <h2 className="text-center ">
+                Are you sure you want to pay all?
+              </h2>
+              <div className="flex  w-full justify-evenly mb-14">
                 <button
                   onClick={async () => {
                     await handlePayAll();
                     setPayAll(false);
                   }}
-                  className="mr-3 hover:cursor-pointer border-none h-10 w-32 rounded-full text-base  text-slate-200 bg-blue-950 hover:bg-blue-900"
+                  className="mr-3 hover:cursor-pointer border-none h-10 w-32 rounded-full text-base  text-slate-950 bg-slate-300 hover:bg-slate-400"
                 >
                   Yes
                 </button>
